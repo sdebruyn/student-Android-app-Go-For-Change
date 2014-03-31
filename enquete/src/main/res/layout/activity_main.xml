@@ -3,5 +3,5 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="be.hubrussel.ti.goforchange.enquete.MainActivity"
+    tools:context="be.hubrussel.ti.goforchange.enquete.activities.MainActivity"
     tools:ignore="MergeRootFrame" />
