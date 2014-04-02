@@ -11,10 +11,12 @@ public class Choice implements BaseColumns {
     private int id;
     private String text;
     private Question nextQuestion;
+    private boolean shouldEnd;
 
     public Choice(String text){
         setText(text);
         setNextQuestion(null);
+        setShouldEnd(false);
     }
 
     public MultipleChoiceQuestion getQuestion() {
@@ -55,5 +57,13 @@ public class Choice implements BaseColumns {
 
     public void setNextQuestion(Question nextQuestion) {
         this.nextQuestion = nextQuestion;
+    }
+
+    public boolean shouldEnd() {
+        return shouldEnd;
+    }
+
+    public void setShouldEnd(boolean shouldEnd) {
+        this.shouldEnd = shouldEnd;
     }
 }

@@ -12,7 +12,7 @@ public class Respondent implements BaseColumns {
 
     private int id;
     private String companyName;
-    private String companyPostal;
+    private int companyPostal;
     private String companyPerson;
     private String companyEmail;
     private final ArrayList<Answer> answers;
@@ -25,15 +25,15 @@ public class Respondent implements BaseColumns {
         return answers.iterator();
     }
 
-    public void addAnswer(Answer answer){
+    protected void addAnswer(Answer answer){
         answers.add(answer);
     }
 
-    public void removeAnswer(Answer answer){
+    protected void removeAnswer(Answer answer){
         answers.remove(answer);
     }
 
-    public void removeAnswerById(int id){
+    protected void removeAnswerById(int id){
         Iterator<Answer> itr = getAnswers();
         Answer toDelete = null;
         do{
@@ -63,11 +63,11 @@ public class Respondent implements BaseColumns {
         this.companyName = companyName;
     }
 
-    public String getCompanyPostal() {
+    public int getCompanyPostal() {
         return companyPostal;
     }
 
-    public void setCompanyPostal(String companyPostal) {
+    public void setCompanyPostal(int companyPostal) {
         this.companyPostal = companyPostal;
     }
 

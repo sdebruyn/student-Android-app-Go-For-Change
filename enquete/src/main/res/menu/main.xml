@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="be.hubrussel.ti.goforchange.enquete.activities.MainActivity" >
     
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+    <item android:id="@+id/action_submit_answers"
+        android:title="@string/action_submit_answers"
         android:orderInCategory="100"
         android:showAsAction="never" />
 </menu>

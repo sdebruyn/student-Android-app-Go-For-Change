@@ -12,8 +12,10 @@ public abstract class Answer implements BaseColumns {
     private final Question answeredQuestion;
 
     public Answer(Respondent respondent, Question answeredQuestion){
-        this.respondent = respondent;
         this.answeredQuestion = answeredQuestion;
+
+        this.respondent = respondent;
+        respondent.addAnswer(this);
     }
 
     public Respondent getRespondent() {

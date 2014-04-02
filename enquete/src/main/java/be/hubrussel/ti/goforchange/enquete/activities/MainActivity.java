@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_submit_answers) {
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_introduction, container, false);
             return rootView;
         }
     }
