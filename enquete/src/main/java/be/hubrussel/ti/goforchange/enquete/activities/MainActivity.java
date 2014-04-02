@@ -9,10 +9,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.IOException;
+
 import be.hubrussel.ti.goforchange.enquete.R;
+import be.hubrussel.ti.goforchange.enquete.controllers.DatabaseConnector;
 
 
 public class MainActivity extends Activity {
+
+    DatabaseConnector connect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,9 +25,17 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new IntroductionFragment())
                     .commit();
         }
+
+        connect = new DatabaseConnector(getApplicationContext());
+        try {
+            connect.initDatabase();
+        } catch (IOException ignored){}
+
+        if(connect.restoreSurveyRespondent() != null)
+            findViewById(R.id.restoreSurveyLayout).setVisibility(View.VISIBLE);
     }
 
 
@@ -46,17 +59,19 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
+    public void beginSurvey(View view) {
 
-        public PlaceholderFragment() {}
+    }
+
+    public static class IntroductionFragment extends Fragment {
+
+        public IntroductionFragment() {}
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_introduction, container, false);
         }
+
     }
 }
