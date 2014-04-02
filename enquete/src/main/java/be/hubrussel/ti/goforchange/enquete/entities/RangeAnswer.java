@@ -20,12 +20,17 @@ public class RangeAnswer extends Answer {
 
         RangeQuestion question = (RangeQuestion) getAnsweredQuestion();
         if(!question.isValidNumber(answeredNumber))
-            throw new IllegalArgumentException("This number is not a valid answer for this question.");
+            throw new IllegalArgumentException();
 
         this.answeredNumber = answeredNumber;
     }
 
     public int getAnsweredNumber() {
         return answeredNumber;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(getAnsweredNumber());
     }
 }

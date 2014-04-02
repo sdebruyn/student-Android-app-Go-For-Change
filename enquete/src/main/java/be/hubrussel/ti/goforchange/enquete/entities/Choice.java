@@ -1,9 +1,11 @@
 package be.hubrussel.ti.goforchange.enquete.entities;
 
+import android.provider.BaseColumns;
+
 /**
  * Created by Samuel on 31/03/2014.
  */
-public class Choice {
+public class Choice implements BaseColumns {
 
     private MultipleChoiceQuestion question;
     private int id;
@@ -19,7 +21,15 @@ public class Choice {
         return question;
     }
 
-    public void setQuestion(MultipleChoiceQuestion question) {
+    /**
+     *
+     * @param question
+     * @throws UnsupportedOperationException You can only set this to a question of the previous setting was null.
+     */
+    protected void setQuestion(MultipleChoiceQuestion question) throws UnsupportedOperationException {
+        if(this.question != null)
+            throw new UnsupportedOperationException();
+
         this.question = question;
     }
 

@@ -1,9 +1,11 @@
 package be.hubrussel.ti.goforchange.enquete.entities;
 
+import android.provider.BaseColumns;
+
 /**
  * Created by Samuel on 31/03/2014.
  */
-public abstract class Question {
+public abstract class Question implements BaseColumns {
 
     private int id;
     private int order;
@@ -46,5 +48,10 @@ public abstract class Question {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return getDescription();
     }
 }

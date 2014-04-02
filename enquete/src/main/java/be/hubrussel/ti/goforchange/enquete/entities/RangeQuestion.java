@@ -46,9 +46,7 @@ public class RangeQuestion extends Question {
     }
 
     public boolean isValidNumber(int number){
-        if(number < getMin() || number > getMax() || ((number+getMin())%getStep() != 0))
-            return false;
+        return !(number < getMin() || number > getMax() || ((number + getMin()) % getStep() != 0));
 
-        return true;
     }
 }

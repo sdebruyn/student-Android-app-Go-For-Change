@@ -28,4 +28,9 @@ public class OpenNumericAnswer extends Answer {
     public int getAnsweredNumber() {
         return answeredNumber;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(getAnsweredNumber());
+    }
 }

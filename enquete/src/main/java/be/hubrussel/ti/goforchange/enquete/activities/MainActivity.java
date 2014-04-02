@@ -3,6 +3,7 @@ package be.hubrussel.ti.goforchange.enquete.activities;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import be.hubrussel.ti.goforchange.enquete.R;
+import be.hubrussel.ti.goforchange.enquete.controllers.DatabaseConnector;
+import be.hubrussel.ti.goforchange.enquete.entities.Question;
 
 
 public class MainActivity extends Activity {
@@ -22,6 +25,16 @@ public class MainActivity extends Activity {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
+        }
+
+        // DEBUG
+        DatabaseConnector connect = new DatabaseConnector(getApplicationContext());
+        try {
+            connect.initDatabase();
+            Question q = connect.getFirstQuestion();
+            Log.d(DatabaseConnector.DEBUG_TAG, q.toString());
+        } catch (Exception e) {
+            Log.d(DatabaseConnector.DEBUG_TAG, "Problem with DB.", e);
         }
     }
 

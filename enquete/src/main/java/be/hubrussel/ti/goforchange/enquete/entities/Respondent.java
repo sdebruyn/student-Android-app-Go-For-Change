@@ -1,12 +1,14 @@
 package be.hubrussel.ti.goforchange.enquete.entities;
 
+import android.provider.BaseColumns;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
  * Created by Samuel on 31/03/2014.
  */
-public class Respondent {
+public class Respondent implements BaseColumns {
 
     private int id;
     private String companyName;

@@ -26,4 +26,9 @@ public class OpenTextAnswer extends Answer {
     public String getAnsweredText() {
         return answeredText;
     }
+
+    @Override
+    public String toString() {
+        return getAnsweredText();
+    }
 }

@@ -19,8 +19,16 @@ public class MultipleChoiceAnswer extends Answer {
             throw new IllegalArgumentException();
 
         answeredChoices = new ArrayList<Choice>();
-        Iterator<Choice> choices = answeredChoicesLst.iterator();
-        while(choices.hasNext())
-            answeredChoices.add(choices.next());
+        for (Choice answeredChoice : answeredChoicesLst)
+            answeredChoices.add(answeredChoice);
+    }
+
+    public Iterator<Choice> getChoices(){
+        return answeredChoices.iterator();
+    }
+
+    @Override
+    public String toString() {
+        return answeredChoices.toString();
     }
 }

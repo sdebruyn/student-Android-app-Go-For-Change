@@ -26,8 +26,6 @@ public class OpenNumericQuestion extends Question {
     }
 
     public boolean isValidNumber(int number){
-        if(isYear() && (number < MIN_YEAR || number > MAX_YEAR))
-            return false;
-        return true;
+        return !(isYear() && (number < MIN_YEAR || number > MAX_YEAR));
     }
 }

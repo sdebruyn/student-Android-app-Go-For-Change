@@ -45,6 +45,7 @@ public class MultipleChoiceQuestion extends Question {
      */
     public void removeChoice(Choice choice){
         choices.remove(choice);
+        choice.setQuestion(null);
 
         if(getMaxChoices() > choices.size())
             setMaxChoices(choices.size());
@@ -88,9 +89,7 @@ public class MultipleChoiceQuestion extends Question {
     }
 
     private boolean isValidChoice(Choice choice){
-        if(choice.getQuestion() == this && choices.contains(choice))
-            return true;
-        return false;
+        return choice.getQuestion() == this && choices.contains(choice);
     }
 
     public boolean isValidChoiceList(Iterator<Choice> choices){
@@ -101,10 +100,8 @@ public class MultipleChoiceQuestion extends Question {
                 count++;
         }
 
-        if(count > getMaxChoices() || count < getMinChoices())
-            return false;
+        return !(count > getMaxChoices() || count < getMinChoices());
 
-        return true;
     }
 
     public int getMinChoices() {
