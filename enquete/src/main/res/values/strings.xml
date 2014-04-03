@@ -7,5 +7,17 @@
     <string name="start_survery">Begin de vragenlijst</string>
     <string name="unrestored_survey_found">We hebben een onafgewerkte vragenlijst gevonden. Indien u deze nu niet herstelt en verder afwerkt, wordt deze verwijderd.</string>
     <string name="restore_survey">Herstel de vragenlijst</string>
+    <string name="title_activity_send_saved_surveys">Verzenden</string>
+    <string name="title_activity_question">Vragenlijst</string>
+    <string name="action_quit_survey">Stop vragenlijst</string>
+    <string name="next_question">Volgende vraag</string>
+    <string name="title_activity_user_info">Gebruikersgegevens</string>
+    <string name="ask_user_data">Indien u dat wenst of indien u hiervoor heeft aangegeven bereid te zijn tot verdere samenwerking,
+        kan u hier uw contactinformatie invullen. Dat is optioneel maar stelt ons in staat u op de hoogte te houden van de resultaten van het onderzoek.
+        Uw contactgegevens worden in geen geval openbaar gemaakt en alle antwoorden op deze vragenlijst worden anoniem verwerkt.</string>
+    <string name="company_name">Bedrijfsnaam</string>
+    <string name="company_postal">Postcode bedrijf</string>
+    <string name="respondent_name">Naam respondent</string>
+    <string name="respondent_mail">E-mail respondent</string>
 
 </resources>

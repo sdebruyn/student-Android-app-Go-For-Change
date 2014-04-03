@@ -1,13 +1,13 @@
 package be.hubrussel.ti.goforchange.enquete.activities;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -17,61 +17,59 @@ import be.hubrussel.ti.goforchange.enquete.controllers.DatabaseConnector;
 
 public class MainActivity extends Activity {
 
-    DatabaseConnector connect;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new IntroductionFragment())
-                    .commit();
+
+        if (ApplicationData.getDatabaseConnector() == null)
+            ApplicationData.setDatabaseConnector(new DatabaseConnector(getApplicationContext()));
+        try {
+            ApplicationData.getDatabaseConnector().initDatabase();
+        } catch (IOException e) {
+            handleSimpleError(e);
         }
 
-        connect = new DatabaseConnector(getApplicationContext());
-        try {
-            connect.initDatabase();
-        } catch (IOException ignored){}
-
-        if(connect.restoreSurveyRespondent() != null)
+        ApplicationData.setRespondent(ApplicationData.getDatabaseConnector().restoreSurveyRespondent());
+        if (ApplicationData.getRespondent() != null)
             findViewById(R.id.restoreSurveyLayout).setVisibility(View.VISIBLE);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_submit_answers) {
-            return true;
+        switch (id) {
+            case R.id.action_submit_answers:
+                Intent intent = new Intent(this, SendSavedSurveys.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+    }
+
+    private void handleSimpleError(Exception e) {
+        Log.e(getClass().getName(), "Exception occured", e);
+        Toast.makeText(this, "Door een tijdelijk probleem kan deze actie momenteel niet voltooid worden. Probeer het later opnieuw.", Toast.LENGTH_LONG).show();
     }
 
     public void beginSurvey(View view) {
-
+        Intent intent = new Intent(this, UserInfoActivity.class);
+        startActivity(intent);
+        finish();
     }
 
-    public static class IntroductionFragment extends Fragment {
-
-        public IntroductionFragment() {}
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_introduction, container, false);
-        }
-
+    public void resumeSurvey(View view) {
+        Intent intent = new Intent(this, QuestionActivity.class);
+        startActivity(intent);
+        finish();
     }
+
 }

@@ -1,9 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="be.hubrussel.ti.goforchange.enquete.activities.MainActivity" >
-    
-    <item android:id="@+id/action_submit_answers"
-        android:title="@string/action_submit_answers"
+    tools:context="be.hubrussel.ti.goforchange.enquete.activities.MainActivity">
+
+    <item
+        android:id="@+id/action_submit_answers"
+        android:icon="@drawable/ic_action_new_email"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/action_submit_answers" />
 </menu>
