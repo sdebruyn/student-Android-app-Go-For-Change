@@ -2,6 +2,7 @@ package be.hubrussel.ti.goforchange.enquete.entities;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by Samuel on 31/03/2014.
@@ -89,19 +90,18 @@ public class MultipleChoiceQuestion extends Question {
     }
 
     private boolean isValidChoice(Choice choice){
+        if(choice == null)
+            return false;
         return choice.getQuestion() == this && choices.contains(choice);
     }
 
-    public boolean isValidChoiceList(Iterator<Choice> choices){
-        int count = 0;
-        while(choices.hasNext()){
-            if(!isValidChoice(choices.next()))
+    public boolean isValidChoiceList(List<Choice> choices){
+        for(Choice choice: choices){
+            if(!isValidChoice(choice))
                 return false;
-                count++;
         }
 
-        return !(count > getMaxChoices() || count < getMinChoices());
-
+        return !(choices.size() > getMaxChoices() || choices.size() < getMinChoices());
     }
 
     public int getMinChoices() {

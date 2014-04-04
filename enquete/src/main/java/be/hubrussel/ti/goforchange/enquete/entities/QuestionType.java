@@ -15,7 +15,7 @@ public enum QuestionType {
     public static QuestionType fromString(String input){
 
         try{
-            return valueOf(input.trim().toUpperCase());
+            return valueOf(input.trim().replace(" ", "_").toUpperCase());
         }catch(Exception e){
             return TEXT;
         }

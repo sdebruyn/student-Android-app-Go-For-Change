@@ -10,9 +10,11 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import be.hubrussel.ti.goforchange.enquete.R;
 import be.hubrussel.ti.goforchange.enquete.controllers.DatabaseConnector;
+import be.hubrussel.ti.goforchange.enquete.entities.Respondent;
 
 
 public class MainActivity extends Activity {
@@ -61,12 +63,23 @@ public class MainActivity extends Activity {
     }
 
     public void beginSurvey(View view) {
-        Intent intent = new Intent(this, UserInfoActivity.class);
+        Respondent respondent = new Respondent();
+        try {
+            ApplicationData.getDatabaseConnector().newRespondent(respondent);
+        } catch (SQLException e) {
+            handleSimpleError(e);
+        }
+        ApplicationData.setRespondent(respondent);
+
+        Intent intent = new Intent(this, QuestionActivity.class);
         startActivity(intent);
         finish();
     }
 
     public void resumeSurvey(View view) {
+        Respondent respondent = ApplicationData.getDatabaseConnector().restoreSurveyRespondent();
+        ApplicationData.setRespondent(respondent);
+
         Intent intent = new Intent(this, QuestionActivity.class);
         startActivity(intent);
         finish();

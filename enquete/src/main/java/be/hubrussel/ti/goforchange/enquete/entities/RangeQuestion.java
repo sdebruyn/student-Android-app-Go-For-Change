@@ -41,12 +41,24 @@ public class RangeQuestion extends Question {
         return step;
     }
 
+    /**
+     *
+     * @param step The step for this range. This step should be valid for the set max and min. That means that ((max - min) % step) should be zero.
+     */
     public void setStep(int step) {
-        this.step = step;
+        if(((getMax() - getMin()) % step) == 0)
+            this.step = step;
     }
 
     public boolean isValidNumber(int number){
         return !(number < getMin() || number > getMax() || ((number + getMin()) % getStep() != 0));
+    }
 
+    public int getSeekBarMax(){
+        return (getMax() - getMin()) / getStep();
+    }
+
+    public int getRealValueFromSeekBar(int fromSeekBar){
+        return  getMin() + fromSeekBar * getStep();
     }
 }

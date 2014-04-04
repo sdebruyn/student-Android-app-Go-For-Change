@@ -114,10 +114,10 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/editRespondentMail"
             android:layout_marginTop="20dp"
-            android:drawableRight="@drawable/ic_action_next_item"
-            android:onClick="beginQuestions"
+            android:drawableLeft="@drawable/ic_action_accept"
+            android:onClick="finishSurvey"
             android:padding="10dp"
-            android:text="@string/next_question"
+            android:text="@string/finish_survey"
             android:textSize="20sp" />
 
     </RelativeLayout>

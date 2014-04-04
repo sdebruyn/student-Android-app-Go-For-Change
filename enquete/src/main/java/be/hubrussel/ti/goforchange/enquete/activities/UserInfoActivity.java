@@ -51,13 +51,13 @@ public class UserInfoActivity extends Activity {
         finish();
     }
 
-    public void beginQuestions(View view) {
+    public void finishSurvey(View view) {
         EditText editRespondentName = (EditText) findViewById(R.id.editRespondentName);
         EditText editCompanyName = (EditText) findViewById(R.id.editCompanyName);
         EditText editCompanyPostal = (EditText) findViewById(R.id.editCompanyPostal);
         EditText editRespondentMail = (EditText) findViewById(R.id.editRespondentMail);
 
-        Respondent respondent = new Respondent();
+        Respondent respondent = ApplicationData.getRespondent();
         respondent.setCompanyName(editCompanyName.getText().toString());
         respondent.setCompanyPerson(editRespondentName.getText().toString());
         respondent.setCompanyEmail(editRespondentMail.getText().toString());
@@ -67,14 +67,12 @@ public class UserInfoActivity extends Activity {
         }
 
         try {
-            ApplicationData.getDatabaseConnector().newRespondent(respondent);
+            ApplicationData.getDatabaseConnector().finishRespondent(respondent);
         } catch (SQLException e) {
             handleSimpleError(e);
         }
 
-        ApplicationData.setRespondent(respondent);
-
-        Intent intent = new Intent(this, QuestionActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }

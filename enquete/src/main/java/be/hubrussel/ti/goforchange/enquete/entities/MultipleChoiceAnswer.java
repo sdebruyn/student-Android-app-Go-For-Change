@@ -15,7 +15,7 @@ public class MultipleChoiceAnswer extends Answer {
         super(respondent, answeredQuestion);
 
         MultipleChoiceQuestion question = (MultipleChoiceQuestion) getAnsweredQuestion();
-        if(!question.isValidChoiceList(answeredChoicesLst.iterator()))
+        if(!question.isValidChoiceList(answeredChoicesLst))
             throw new IllegalArgumentException();
 
         answeredChoices = new ArrayList<Choice>();

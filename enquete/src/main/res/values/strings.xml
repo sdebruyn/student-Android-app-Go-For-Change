@@ -3,8 +3,8 @@
 
     <string name="app_name">goforchange</string>
     <string name="action_submit_answers">Verzend opgeslagen antwoordreeksen</string>
-    <string name="introduction_text">Welkom bij Go For Change! Hier moet nog een introductietekstje komen.</string>
-    <string name="start_survery">Begin de vragenlijst</string>
+    <string name="introduction_text">Welkom bij Go For Change!</string>
+    <string name="start_survery">Open de vragenlijst</string>
     <string name="unrestored_survey_found">We hebben een onafgewerkte vragenlijst gevonden. Indien u deze nu niet herstelt en verder afwerkt, wordt deze verwijderd.</string>
     <string name="restore_survey">Herstel de vragenlijst</string>
     <string name="title_activity_send_saved_surveys">Verzenden</string>
@@ -19,5 +19,11 @@
     <string name="company_postal">Postcode bedrijf</string>
     <string name="respondent_name">Naam respondent</string>
     <string name="respondent_mail">E-mail respondent</string>
+    <string name="finish_survey">Beëindig vragenlijst</string>
+    <string name="invalid_text">Gelieve een antwoord in te vullen.</string>
+    <string name="invalid_answer">Ongeldig antwoord</string>
+    <string name="invalid_number">Het ingevoerde getal, %1$d, is niet geldig.</string>
+    <string name="invalid_year">Het ingevoerde getal, %1$d, is geen geldig jaartal. Zorg ervoor dat u het jaartal als een getal van 4 cijfers invoert (bvb. 2014 en niet 14).</string>
+    <string name="invalid_choices">Gelieve minstens %1$d keuze(s) aan te duiden. U duidde er %2$d aan.</string>
 
 </resources>

@@ -15,24 +15,11 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Iterator;
 
-import be.hubrussel.ti.goforchange.enquete.entities.Answer;
-import be.hubrussel.ti.goforchange.enquete.entities.Choice;
-import be.hubrussel.ti.goforchange.enquete.entities.MultipleChoiceAnswer;
-import be.hubrussel.ti.goforchange.enquete.entities.MultipleChoiceQuestion;
-import be.hubrussel.ti.goforchange.enquete.entities.OpenNumericAnswer;
-import be.hubrussel.ti.goforchange.enquete.entities.OpenNumericQuestion;
-import be.hubrussel.ti.goforchange.enquete.entities.OpenTextAnswer;
-import be.hubrussel.ti.goforchange.enquete.entities.OpenTextQuestion;
-import be.hubrussel.ti.goforchange.enquete.entities.Question;
-import be.hubrussel.ti.goforchange.enquete.entities.QuestionType;
-import be.hubrussel.ti.goforchange.enquete.entities.RangeAnswer;
-import be.hubrussel.ti.goforchange.enquete.entities.RangeQuestion;
-import be.hubrussel.ti.goforchange.enquete.entities.Respondent;
-import be.hubrussel.ti.goforchange.enquete.entities.Section;
+import be.hubrussel.ti.goforchange.enquete.entities.*;
 
 /**
  * Created by Samuel on 31/03/2014.
- * <p/>
+ *
  * Always call initDatabase before doing anything else!
  */
 public class DatabaseConnector extends SQLiteOpenHelper {
@@ -145,6 +132,9 @@ public class DatabaseConnector extends SQLiteOpenHelper {
     }
 
     private Question retrieveNextQuestion(Question input) throws SQLiteDatabaseCorruptException {
+        if(input.getNext() != null)
+            return input.getNext();
+
         return retrieveQuestionByOrderId(input.getOrder() + 1);
     }
 
@@ -195,13 +185,23 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                     result = new RangeQuestion(section, description);
                     RangeQuestion rQuestion = (RangeQuestion) result;
 
-                    Cursor rMeta = db.query(TABLE_QUESTION_TYPES, new String[]{"min", "max", "step"}, " _id = ?", new String[]{meta}, null, null, null);
+                    Cursor rMeta = db.query(TABLE_QUESTION_TYPES, new String[]{"min", "max", "step"}, "[_id] = ?", new String[]{meta}, null, null, null);
+
                     if (rMeta.getCount() != 1)
                         throw new SQLiteDatabaseCorruptException();
 
-                    rQuestion.setMin(rMeta.getInt(0));
-                    rQuestion.setMax(rMeta.getInt(1));
-                    rQuestion.setStep(rMeta.getInt(2));
+                    rMeta.moveToFirst();
+
+                    int minColInd = rMeta.getColumnIndexOrThrow("min");
+                    int maxColInd = rMeta.getColumnIndexOrThrow("max");
+                    int stepColInd = rMeta.getColumnIndexOrThrow("step");
+
+                    if(rMeta.getType(minColInd) == Cursor.FIELD_TYPE_NULL || rMeta.getType(maxColInd) == Cursor.FIELD_TYPE_NULL || rMeta.getType(stepColInd) == Cursor.FIELD_TYPE_NULL)
+                        throw new SQLiteDatabaseCorruptException();
+
+                    rQuestion.setMin(rMeta.getInt(minColInd));
+                    rQuestion.setMax(rMeta.getInt(maxColInd));
+                    rQuestion.setStep(rMeta.getInt(stepColInd));
 
                     rMeta.close();
                     break;
@@ -227,7 +227,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                     result = new MultipleChoiceQuestion(section, description);
                     MultipleChoiceQuestion mQuestion = (MultipleChoiceQuestion) result;
 
-                    Cursor choicesCursor = db.query(TABLE_CHOICES, null, " question_id = ?", new String[]{String.valueOf(qid)}, null, null, null);
+                    Cursor choicesCursor = db.query(TABLE_CHOICES, null, "[question_id] = ?", new String[]{String.valueOf(qid)}, null, null, null);
                     if (choicesCursor.getCount() < 1)
                         throw new SQLiteDatabaseCorruptException();
 
@@ -249,18 +249,24 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
                         mQuestion.addChoice(choice);
 
-                    } while (cursor.moveToNext());
+                    } while (choicesCursor.moveToNext());
                     choicesCursor.close();
 
-                    Cursor mMeta = db.query(TABLE_QUESTION_TYPES, new String[]{"min", "max"}, " _id = ?", new String[]{meta}, null, null, null);
+                    Cursor mMeta = db.query(TABLE_QUESTION_TYPES, new String[]{"min", "max"}, "[_id] = ?", new String[]{meta}, null, null, null);
+
                     if (mMeta.getCount() != 1)
                         throw new SQLiteDatabaseCorruptException();
-                    if (mMeta.getType(0) == Cursor.FIELD_TYPE_NULL || mMeta.getType(1) == Cursor.FIELD_TYPE_NULL)
+
+                    mMeta.moveToFirst();
+
+                    int minColInd1 = mMeta.getColumnIndexOrThrow("min");
+                    int maxColInd1 = mMeta.getColumnIndexOrThrow("max");
+                    if (mMeta.getType(minColInd1) == Cursor.FIELD_TYPE_NULL || mMeta.getType(maxColInd1) == Cursor.FIELD_TYPE_NULL)
                         throw new SQLiteDatabaseCorruptException();
 
                     try {
-                        mQuestion.setMinChoices(mMeta.getInt(0));
-                        mQuestion.setMaxChoices(mMeta.getInt(1));
+                        mQuestion.setMinChoices(mMeta.getInt(minColInd1));
+                        mQuestion.setMaxChoices(mMeta.getInt(maxColInd1));
                     } catch (IllegalArgumentException e) {
                         throw new SQLiteDatabaseCorruptException(e.getMessage());
                     }
@@ -275,6 +281,14 @@ public class DatabaseConnector extends SQLiteOpenHelper {
             if (cursor.getType(orderColumn) != Cursor.FIELD_TYPE_NULL)
                 result.setOrder(cursor.getInt(orderColumn));
 
+            int nextQuestionColumn = cursor.getColumnIndexOrThrow("next");
+            if(cursor.getType(nextQuestionColumn) != Cursor.FIELD_TYPE_NULL){
+                try{
+                    Question next = retrieveQuestionById(cursor.getInt(nextQuestionColumn));
+                    result.setNext(next);
+                }catch(Exception ignored){}
+            }
+
         } catch (IllegalArgumentException e) {
             cursor.close();
             db.close();
@@ -282,7 +296,10 @@ public class DatabaseConnector extends SQLiteOpenHelper {
         }
 
         cursor.close();
+        /*
+        Do not close the database in recursive calls.
         db.close();
+         */
 
         return result;
     }
@@ -342,7 +359,6 @@ public class DatabaseConnector extends SQLiteOpenHelper {
      * @param question   The next question this respondent has to answer. Set to null if the survey is ended.
      */
     private void storeNextQuestionId(Respondent respondent, Question question) throws SQLException {
-
         int toDB = 0;
         if (question != null)
             toDB = question.getId();
@@ -361,15 +377,11 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
     private void cancelRestoreSurvey() {
         ContentValues values = new ContentValues();
-        values.put("next_question_id", 0);
+        values.putNull("next_question_id");
         SQLiteDatabase db = getWritableDatabase();
         assert db != null;
         db.update(TABLE_RESPONDENTS, values, "", new String[]{});
         db.close();
-    }
-
-    public Question getFirstQuestion() throws SQLiteDatabaseCorruptException {
-        return retrieveQuestionByOrderId(1);
     }
 
     public Question continueSurvey(Answer answer) throws SQLiteDatabaseCorruptException, SQLException {
@@ -419,22 +431,6 @@ public class DatabaseConnector extends SQLiteOpenHelper {
             } catch (IllegalArgumentException e) {
                 throw new SQLiteDatabaseCorruptException();
             }
-            try {
-                result.setCompanyPostal(cursor.getInt(cursor.getColumnIndexOrThrow("company_postal")));
-            } catch (IllegalArgumentException ignored) {
-            }
-            try {
-                result.setCompanyEmail(cursor.getString(cursor.getColumnIndexOrThrow("company_email")));
-            } catch (IllegalArgumentException ignored) {
-            }
-            try {
-                result.setCompanyName(cursor.getString(cursor.getColumnIndexOrThrow("company_name")));
-            } catch (IllegalArgumentException ignored) {
-            }
-            try {
-                result.setCompanyPerson(cursor.getString(cursor.getColumnIndexOrThrow("company_person")));
-            } catch (IllegalArgumentException ignored) {
-            }
         }
         cursor.close();
         db.close();
@@ -447,7 +443,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         assert db != null;
 
-        Cursor cursor = db.query(TABLE_RESPONDENTS, new String[]{"next_question_id"}, " _id = ?", new String[]{String.valueOf(respondent.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_RESPONDENTS, new String[]{"next_question_id"}, "[_id] = ?", new String[]{String.valueOf(respondent.getId())}, null, null, null);
 
         if (cursor.getCount() != 1)
             throw new SQLiteDatabaseCorruptException();
@@ -468,9 +464,20 @@ public class DatabaseConnector extends SQLiteOpenHelper {
     }
 
     public void newRespondent(Respondent respondent) throws SQLException {
-
         cancelRestoreSurvey();
 
+        ContentValues values = new ContentValues();
+        values.put("next_question_id", 1);
+
+        SQLiteDatabase db = getWritableDatabase();
+        assert db != null;
+        long id = db.insertOrThrow(TABLE_RESPONDENTS, null, values);
+        db.close();
+
+        respondent.setId((int) id);
+    }
+
+    public void finishRespondent(Respondent respondent) throws SQLException{
         ContentValues values = new ContentValues();
         if (respondent.getCompanyName() == null || respondent.getCompanyName().equals(""))
             values.put("company_name", "anonymous");
@@ -482,13 +489,15 @@ public class DatabaseConnector extends SQLiteOpenHelper {
             values.put("company_person", respondent.getCompanyPerson());
         if (!(respondent.getCompanyPostal() < 1000 || respondent.getCompanyPostal() > 9999))
             values.put("company_postal", respondent.getCompanyPostal());
+        values.putNull("next_question_id");
 
         SQLiteDatabase db = getWritableDatabase();
         assert db != null;
-        long id = db.insertOrThrow(TABLE_RESPONDENTS, null, values);
+        int success = db.update(TABLE_RESPONDENTS, values, " _id = ?", new String[]{String.valueOf(respondent.getId())});
         db.close();
 
-        respondent.setId((int) id);
+        if (success < 0)
+            throw new SQLException();
     }
 
 }

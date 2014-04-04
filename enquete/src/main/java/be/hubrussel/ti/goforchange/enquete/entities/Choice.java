@@ -66,4 +66,9 @@ public class Choice implements BaseColumns {
     public void setShouldEnd(boolean shouldEnd) {
         this.shouldEnd = shouldEnd;
     }
+
+    @Override
+    public String toString() {
+        return getText();
+    }
 }

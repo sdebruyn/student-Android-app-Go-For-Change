@@ -7,19 +7,10 @@ import android.provider.BaseColumns;
  */
 public class Section implements BaseColumns {
 
-    private int id;
     private String name;
 
     public Section(String name){
         this.setName(name);
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {

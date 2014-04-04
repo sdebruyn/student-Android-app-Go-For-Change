@@ -9,13 +9,15 @@ public abstract class Question implements BaseColumns {
 
     private int id;
     private int order;
+    private Question next;
     private Section section;
     private String description;
 
     public Question(Section section, String description){
         setSection(section);
         setDescription(description);
-        order = 0;
+        setOrder(0);
+        setNext(null);
     }
 
     public int getId() {
@@ -53,5 +55,13 @@ public abstract class Question implements BaseColumns {
     @Override
     public String toString() {
         return getDescription();
+    }
+
+    public Question getNext() {
+        return next;
+    }
+
+    public void setNext(Question next) {
+        this.next = next;
     }
 }
