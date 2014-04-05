@@ -9,8 +9,8 @@ public class OpenNumericQuestion extends Question {
      * If this is a year than the UX should be quite different. Show a slider and suggest the current year. This should also help validation since we only accept years beyond 1980 and before 2100.
      */
     private boolean isYear;
-    public final static int MIN_YEAR = 1200;
-    public final static int MAX_YEAR = 2000;
+    public final static int MIN_YEAR = 1400;
+    public final static int MAX_YEAR = 2200;
 
     public OpenNumericQuestion(Section section, String description){
         super(section, description);

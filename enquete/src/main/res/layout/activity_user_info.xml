@@ -31,6 +31,7 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/textView"
             android:layout_marginTop="30dp"
+            android:labelFor="@+id/editCompanyName"
             android:text="@string/company_name"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -52,6 +53,7 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/textView2"
             android:layout_marginTop="20dp"
+            android:labelFor="@+id/editCompanyPostal"
             android:text="@string/company_postal"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -74,6 +76,7 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/textView3"
             android:layout_marginTop="20dp"
+            android:labelFor="@+id/editRespondentName"
             android:text="@string/respondent_name"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 

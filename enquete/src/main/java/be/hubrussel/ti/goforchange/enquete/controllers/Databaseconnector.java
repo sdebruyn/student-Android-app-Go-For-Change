@@ -172,8 +172,8 @@ public class DatabaseConnector extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         try {
-            Section section = new Section(cursor.getString(cursor.getColumnIndexOrThrow("section")));
-            String description = cursor.getString(cursor.getColumnIndexOrThrow("description"));
+            Section section = new Section(unescape(cursor.getString(cursor.getColumnIndexOrThrow("section"))));
+            String description = unescape(cursor.getString(cursor.getColumnIndexOrThrow("description")));
             int qid = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
 
             String meta = String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow("meta_id")));
@@ -498,6 +498,17 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
         if (success < 0)
             throw new SQLException();
+    }
+
+    public void clearRespondents(){
+        SQLiteDatabase db = getWritableDatabase();
+        assert db != null;
+        db.delete(TABLE_RESPONDENTS, null, null);
+        db.close();
+    }
+
+    private String unescape(String string){
+        return string.replaceAll("\\\\n", "\\\n");
     }
 
 }

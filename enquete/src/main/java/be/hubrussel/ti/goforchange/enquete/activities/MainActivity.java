@@ -2,6 +2,7 @@ package be.hubrussel.ti.goforchange.enquete.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -35,6 +36,11 @@ public class MainActivity extends Activity {
         ApplicationData.setRespondent(ApplicationData.getDatabaseConnector().restoreSurveyRespondent());
         if (ApplicationData.getRespondent() != null)
             findViewById(R.id.restoreSurveyLayout).setVisibility(View.VISIBLE);
+
+        Intent intent = getIntent();
+        boolean completed = intent.getBooleanExtra(UserInfoActivity.SURVEY_COMPLETED, false);
+        if(completed)
+            findViewById(R.id.textView2).setVisibility(View.VISIBLE);
     }
 
 

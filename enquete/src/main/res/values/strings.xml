@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">goforchange</string>
+    <string name="app_name">Go For Change</string>
     <string name="action_submit_answers">Verzend opgeslagen antwoordreeksen</string>
     <string name="introduction_text">Welkom bij Go For Change!</string>
     <string name="start_survery">Open de vragenlijst</string>
@@ -25,5 +25,12 @@
     <string name="invalid_number">Het ingevoerde getal, %1$d, is niet geldig.</string>
     <string name="invalid_year">Het ingevoerde getal, %1$d, is geen geldig jaartal. Zorg ervoor dat u het jaartal als een getal van 4 cijfers invoert (bvb. 2014 en niet 14).</string>
     <string name="invalid_choices">Gelieve minstens %1$d keuze(s) aan te duiden. U duidde er %2$d aan.</string>
-
+    <string name="thank_you_completion">U heeft de vragenlijst succesvol ingevuld. Hartelijk dank voor uw waardevolle medewerking! Indien u uw gegevens correct achtergelaten heeft, ontvangt u na afloop van het onderzoek persoonlijk de onderzoeksresultaten en een uitnodiging voor de studiedag.</string>
+    <string name="jump_to_number">Ga meteen naar getal naar keuze</string>
+    <string name="enter_ranged_number">Vul aub een getal in tussen %1$d en %2$d.</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Annuleren</string>
+    <string name="send_via_intent">Verzend gegevens via...</string>
+    <string name="save_on_storage">Sla gegevens op op geheugen van apparaat</string>
+    <string name="clear_respondents">Verwijder alle antwoorden van alle respondenten</string>
 </resources>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,8 @@ import be.hubrussel.ti.goforchange.enquete.R;
 import be.hubrussel.ti.goforchange.enquete.entities.Respondent;
 
 public class UserInfoActivity extends Activity {
+
+    public final static String SURVEY_COMPLETED = "be.hubrussel.ti.goforchange.COMPLETED";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,16 @@ public class UserInfoActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void handleSimpleError(Exception e) {
@@ -73,6 +86,7 @@ public class UserInfoActivity extends Activity {
         }
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(SURVEY_COMPLETED, true);
         startActivity(intent);
         finish();
     }
