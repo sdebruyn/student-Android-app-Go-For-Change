@@ -33,4 +33,7 @@
     <string name="send_via_intent">Verzend gegevens via...</string>
     <string name="save_on_storage">Sla gegevens op op geheugen van apparaat</string>
     <string name="clear_respondents">Verwijder alle antwoorden van alle respondenten</string>
+    <string name="respondents_cleared">Alle gegevens over de respondenten werden verwijderd.</string>
+    <string name="error_file_export">Er trad een fout op bij het exporteren van de gegevens.</string>
+    <string name="success_file_export">Het bestand is succesvol weggeschreven.</string>
 </resources>

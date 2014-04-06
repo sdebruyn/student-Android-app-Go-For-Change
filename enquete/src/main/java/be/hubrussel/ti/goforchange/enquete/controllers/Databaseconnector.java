@@ -6,20 +6,28 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.Settings;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import be.hubrussel.ti.goforchange.enquete.entities.*;
 
 /**
  * Created by Samuel on 31/03/2014.
- *
+ * <p/>
  * Always call initDatabase before doing anything else!
  */
 public class DatabaseConnector extends SQLiteOpenHelper {
@@ -132,7 +140,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
     }
 
     private Question retrieveNextQuestion(Question input) throws SQLiteDatabaseCorruptException {
-        if(input.getNext() != null)
+        if (input.getNext() != null)
             return input.getNext();
 
         return retrieveQuestionByOrderId(input.getOrder() + 1);
@@ -196,7 +204,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                     int maxColInd = rMeta.getColumnIndexOrThrow("max");
                     int stepColInd = rMeta.getColumnIndexOrThrow("step");
 
-                    if(rMeta.getType(minColInd) == Cursor.FIELD_TYPE_NULL || rMeta.getType(maxColInd) == Cursor.FIELD_TYPE_NULL || rMeta.getType(stepColInd) == Cursor.FIELD_TYPE_NULL)
+                    if (rMeta.getType(minColInd) == Cursor.FIELD_TYPE_NULL || rMeta.getType(maxColInd) == Cursor.FIELD_TYPE_NULL || rMeta.getType(stepColInd) == Cursor.FIELD_TYPE_NULL)
                         throw new SQLiteDatabaseCorruptException();
 
                     rQuestion.setMin(rMeta.getInt(minColInd));
@@ -282,11 +290,12 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                 result.setOrder(cursor.getInt(orderColumn));
 
             int nextQuestionColumn = cursor.getColumnIndexOrThrow("next");
-            if(cursor.getType(nextQuestionColumn) != Cursor.FIELD_TYPE_NULL){
-                try{
+            if (cursor.getType(nextQuestionColumn) != Cursor.FIELD_TYPE_NULL) {
+                try {
                     Question next = retrieveQuestionById(cursor.getInt(nextQuestionColumn));
                     result.setNext(next);
-                }catch(Exception ignored){}
+                } catch (Exception ignored) {
+                }
             }
 
         } catch (IllegalArgumentException e) {
@@ -313,7 +322,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put("respondent_id", answer.getRespondent().getId());
-        values.put("question_id", answer.getRespondent().getId());
+        values.put("question_id", answer.getAnsweredQuestion().getId());
 
         if (answer.getClass() == OpenNumericAnswer.class) {
             values.put("numeric", ((OpenNumericAnswer) answer).getAnsweredNumber());
@@ -342,7 +351,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
             ContentValues values = new ContentValues();
             values.put("respondent_id", answer.getRespondent().getId());
-            values.put("question_id", answer.getRespondent().getId());
+            values.put("question_id", answer.getAnsweredQuestion().getId());
             values.put("choice_id", current.getId());
             assert db != null;
             id = db.insertOrThrow(TABLE_ANSWERS, null, values);
@@ -477,7 +486,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
         respondent.setId((int) id);
     }
 
-    public void finishRespondent(Respondent respondent) throws SQLException{
+    public void finishRespondent(Respondent respondent) throws SQLException {
         ContentValues values = new ContentValues();
         if (respondent.getCompanyName() == null || respondent.getCompanyName().equals(""))
             values.put("company_name", "anonymous");
@@ -500,14 +509,171 @@ public class DatabaseConnector extends SQLiteOpenHelper {
             throw new SQLException();
     }
 
-    public void clearRespondents(){
+    public void clearRespondents() {
         SQLiteDatabase db = getWritableDatabase();
         assert db != null;
         db.delete(TABLE_RESPONDENTS, null, null);
         db.close();
     }
 
-    private String unescape(String string){
+    public String csvExport() {
+        ArrayList<ArrayList<String>> resultLines = new ArrayList<ArrayList<String>>();
+        ArrayList<String> titles = new ArrayList<String>();
+        titles.addAll(Arrays.asList(
+                "RespondentID",
+                "RespondentName",
+                "RespondentCompanyName",
+                "RespondentCompanyPostal",
+                "RespondentCompanyMail",
+                "QuestionID",
+                "Answer"
+        ));
+        resultLines.add(titles);
+
+        SQLiteDatabase db = getReadableDatabase();
+        assert db != null;
+
+        Cursor respCursor = db.query(TABLE_RESPONDENTS, null, null, null, null, null, null);
+        try {
+            respCursor.moveToFirst();
+            do {
+                Calendar now = Calendar.getInstance();
+                String androidID = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+                String respRealID = String.valueOf(respCursor.getInt(respCursor.getColumnIndexOrThrow("_id")));
+                String respID = '"'
+                        + androidID
+                        + String.valueOf(now.get(Calendar.YEAR))
+                        + String.valueOf(now.get(Calendar.MONTH) + 1)
+                        + String.valueOf(now.get(Calendar.DAY_OF_MONTH))
+                        + String.valueOf(now.get(Calendar.HOUR_OF_DAY))
+                        + String.valueOf(now.get(Calendar.MINUTE))
+                        + String.valueOf(now.get(Calendar.SECOND))
+                        + respRealID
+                        + '"';
+                String respPers = '"' + respCursor.getString(respCursor.getColumnIndexOrThrow("company_person")) + '"';
+                String respName = '"' + respCursor.getString(respCursor.getColumnIndexOrThrow("company_name")) + '"';
+                String respPostal = String.valueOf(respCursor.getInt(respCursor.getColumnIndexOrThrow("company_postal")));
+                String respMail = '"' + respCursor.getString(respCursor.getColumnIndexOrThrow("company_email")) + '"';
+
+                Cursor questionsCursor = db.query(VIEW_QUESTIONS, new String[]{"[_id]", "[order]", "[type]"}, null, null, null, null, null);
+                questionsCursor.moveToFirst();
+                do{
+                    String qID = String.valueOf(questionsCursor.getInt(questionsCursor.getColumnIndexOrThrow("[_id]")));
+                    String qOrder = String.valueOf(questionsCursor.getInt(questionsCursor.getColumnIndexOrThrow("[order]")));
+                    String answered = "-1";
+                    Cursor answersCursor = db.query(TABLE_ANSWERS, null, "[question_id] = ? AND [respondent_id] = ?", new String[]{qID, respRealID}, null, null, null);
+                    int noAnswers = answersCursor.getCount();
+
+                    QuestionType type = QuestionType.fromString(questionsCursor.getString(questionsCursor.getColumnIndexOrThrow("[type]")));
+                    switch(type){
+
+                        case RANGE:
+                        case NUMERIC:
+                        case YEAR:
+                            if(answersCursor.moveToFirst()){
+                                answered = String.valueOf(answersCursor.getInt(answersCursor.getColumnIndexOrThrow("numeric")));
+                            }
+                            ArrayList<String> currentLine = new ArrayList<String>();
+                            currentLine.addAll(Arrays.asList(
+                                    respID,
+                                    respPers,
+                                    respName,
+                                    respPostal,
+                                    respMail,
+                                    qOrder,
+                                    answered
+                            ));
+                            resultLines.add(currentLine);
+                            break;
+                        case TEXT:
+                            if(answersCursor.moveToFirst()){
+                                answered = "\"" + answersCursor.getString(answersCursor.getColumnIndexOrThrow("open_text")) + "\"";
+                            }
+                            ArrayList<String> currentLine1 = new ArrayList<String>();
+                            currentLine1.addAll(Arrays.asList(
+                                    respID,
+                                    respPers,
+                                    respName,
+                                    respPostal,
+                                    respMail,
+                                    qOrder,
+                                    answered
+                            ));
+                            resultLines.add(currentLine1);
+                            break;
+                        case MULTIPLE_CHOICE:
+                            HashMap<Integer, Integer> choicesMapping = new HashMap<Integer, Integer>();
+
+                            Cursor choicesCursor = db.query(TABLE_CHOICES, new String[]{"_id"}, "[question_id] = ?", new String[]{qID}, null, null, null);
+                            choicesCursor.moveToFirst();
+                            do{
+                                choicesMapping.put(choicesCursor.getInt(choicesCursor.getColumnIndexOrThrow("_id")), -1);
+                            }while(choicesCursor.moveToNext());
+
+                            if(noAnswers > 0){
+                                for(Integer key: choicesMapping.keySet())
+                                    choicesMapping.put(key, 0);
+
+                                answersCursor.moveToFirst();
+                                do{
+                                    choicesMapping.put(answersCursor.getInt(answersCursor.getColumnIndexOrThrow("choice_id")), 1);
+                                }while(answersCursor.moveToNext());
+                            }
+                            int counter = 0;
+                            for(Integer choiceID: choicesMapping.keySet()){
+                                char[] qExtraChars = Character.toChars(65 + counter);
+                                String qExtra = new String(qExtraChars);
+                                String qFinalID = qOrder + qExtra;
+                                answered = String.valueOf(choicesMapping.get(choiceID));
+
+                                ArrayList<String> currentLine2 = new ArrayList<String>();
+                                currentLine2.addAll(Arrays.asList(
+                                        respID,
+                                        respPers,
+                                        respName,
+                                        respPostal,
+                                        respMail,
+                                        qFinalID,
+                                        answered
+                                ));
+                                resultLines.add(currentLine2);
+                                counter++;
+                            }
+
+                            break;
+                    }
+                }while(questionsCursor.moveToNext());
+            } while (respCursor.moveToNext());
+        } catch (Exception ignored) {}
+
+        respCursor.close();
+        db.close();
+        return linesToString(resultLines);
+    }
+
+    private String linesToString(ArrayList<ArrayList<String>> input) {
+        String result = "";
+        boolean lineFirst = true;
+        for (ArrayList<String> currentLine : input) {
+            if (lineFirst)
+                lineFirst = false;
+            else
+                result += "\n";
+            boolean first = true;
+            for (String current : currentLine) {
+                if (first)
+                    first = false;
+                else
+                    result += ",";
+                if (current.equals("\"null\""))
+                    current = "\"\"";
+                result += current;
+            }
+        }
+        return result;
+    }
+
+    private String unescape(String string) {
         return string.replaceAll("\\\\n", "\\\n");
     }
 
