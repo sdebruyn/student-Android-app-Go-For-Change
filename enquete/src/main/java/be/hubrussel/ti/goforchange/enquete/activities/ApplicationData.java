@@ -9,8 +9,8 @@ import be.hubrussel.ti.goforchange.enquete.entities.Respondent;
 public class ApplicationData {
 
     private static ApplicationData ourInstance = new ApplicationData();
-    private static DatabaseConnector databaseConnector;
-    private static Respondent respondent;
+    private DatabaseConnector databaseConnector;
+    private Respondent respondent;
 
     private ApplicationData() {
     }
@@ -19,20 +19,20 @@ public class ApplicationData {
         return ourInstance;
     }
 
-    public static DatabaseConnector getDatabaseConnector() {
+    public DatabaseConnector getDatabaseConnector() {
         return databaseConnector;
     }
 
-    public static void setDatabaseConnector(DatabaseConnector databaseConnector) {
-        ApplicationData.databaseConnector = databaseConnector;
+    public void setDatabaseConnector(DatabaseConnector databaseConnector) {
+        this.databaseConnector = databaseConnector;
     }
 
-    public static Respondent getRespondent() {
+    public Respondent getRespondent() {
         return respondent;
     }
 
-    public static void setRespondent(Respondent respondent) {
-        ApplicationData.respondent = respondent;
+    public void setRespondent(Respondent respondent) {
+        this.respondent = respondent;
     }
 
     @Override

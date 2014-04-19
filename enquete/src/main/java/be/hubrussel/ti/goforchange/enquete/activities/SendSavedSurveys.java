@@ -24,7 +24,7 @@ public class SendSavedSurveys extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_saved_surveys);
 
-        if (ApplicationData.getDatabaseConnector() == null)
+        if (ApplicationData.getInstance().getDatabaseConnector() == null)
             handleSimpleError(new IllegalStateException());
     }
 
@@ -53,7 +53,7 @@ public class SendSavedSurveys extends Activity {
         File destinationFile = new File(destinationDir, now + ".csv");
         FileWriter fileWriter = new FileWriter(destinationFile);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        bufferedWriter.write(ApplicationData.getDatabaseConnector().csvExport());
+        bufferedWriter.write(ApplicationData.getInstance().getDatabaseConnector().csvExport());
         bufferedWriter.close();
         return Uri.fromFile(destinationFile);
     }
@@ -83,7 +83,7 @@ public class SendSavedSurveys extends Activity {
     }
 
     public void clearRespondents(View view) {
-        ApplicationData.getDatabaseConnector().clearRespondents();
+        ApplicationData.getInstance().getDatabaseConnector().clearRespondents();
         Toast toast = Toast.makeText(this, R.string.respondents_cleared, Toast.LENGTH_LONG);
         toast.show();
     }

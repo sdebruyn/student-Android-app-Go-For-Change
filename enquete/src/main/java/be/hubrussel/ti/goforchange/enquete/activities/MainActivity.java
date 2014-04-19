@@ -25,16 +25,16 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (ApplicationData.getDatabaseConnector() == null)
-            ApplicationData.setDatabaseConnector(new DatabaseConnector(getApplicationContext()));
+        if (ApplicationData.getInstance().getDatabaseConnector() == null)
+            ApplicationData.getInstance().setDatabaseConnector(new DatabaseConnector(getApplicationContext()));
         try {
-            ApplicationData.getDatabaseConnector().initDatabase();
+            ApplicationData.getInstance().getDatabaseConnector().initDatabase();
         } catch (IOException e) {
             handleSimpleError(e);
         }
 
-        ApplicationData.setRespondent(ApplicationData.getDatabaseConnector().restoreSurveyRespondent());
-        if (ApplicationData.getRespondent() != null)
+        ApplicationData.getInstance().setRespondent(ApplicationData.getInstance().getDatabaseConnector().restoreSurveyRespondent());
+        if (ApplicationData.getInstance().getRespondent() != null)
             findViewById(R.id.restoreSurveyLayout).setVisibility(View.VISIBLE);
 
         Intent intent = getIntent();
@@ -71,11 +71,11 @@ public class MainActivity extends Activity {
     public void beginSurvey(View view) {
         Respondent respondent = new Respondent();
         try {
-            ApplicationData.getDatabaseConnector().newRespondent(respondent);
+            ApplicationData.getInstance().getDatabaseConnector().newRespondent(respondent);
         } catch (SQLException e) {
             handleSimpleError(e);
         }
-        ApplicationData.setRespondent(respondent);
+        ApplicationData.getInstance().setRespondent(respondent);
 
         Intent intent = new Intent(this, QuestionActivity.class);
         startActivity(intent);
@@ -83,8 +83,8 @@ public class MainActivity extends Activity {
     }
 
     public void resumeSurvey(View view) {
-        Respondent respondent = ApplicationData.getDatabaseConnector().restoreSurveyRespondent();
-        ApplicationData.setRespondent(respondent);
+        Respondent respondent = ApplicationData.getInstance().getDatabaseConnector().restoreSurveyRespondent();
+        ApplicationData.getInstance().setRespondent(respondent);
 
         Intent intent = new Intent(this, QuestionActivity.class);
         startActivity(intent);

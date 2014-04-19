@@ -38,7 +38,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
      * Attention! This will erase all data in the database.
      * The same could happen when the user downgrades instead of upgrading.
      */
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private final static String VIEW_QUESTIONS = "single_questions";
     private final static String TABLE_ANSWERS = "answers";
     private final static String TABLE_CHOICES = "choices";
@@ -217,6 +217,25 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
                 case NUMERIC:
                     result = new OpenNumericQuestion(section, description);
+                    OpenNumericQuestion nQuestion = (OpenNumericQuestion) result;
+
+                    Cursor nrMeta = db.query(TABLE_QUESTION_TYPES, new String[]{"min", "max"}, "[_id] = ?", new String[]{meta}, null, null, null);
+
+                    if (nrMeta.getCount() != 1)
+                        throw new SQLiteDatabaseCorruptException();
+
+                    nrMeta.moveToFirst();
+
+                    int nMinColInd = nrMeta.getColumnIndexOrThrow("min");
+                    int nMaxColInd = nrMeta.getColumnIndexOrThrow("max");
+
+                    if(nrMeta.getType(nMinColInd) != Cursor.FIELD_TYPE_NULL)
+                        nQuestion.setMin(nrMeta.getInt(nMinColInd));
+
+                    if(nrMeta.getType(nMaxColInd) != Cursor.FIELD_TYPE_NULL)
+                        nQuestion.setMax(nrMeta.getInt(nMaxColInd));
+
+                    nrMeta.close();
                     break;
 
 
@@ -291,11 +310,15 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
             int nextQuestionColumn = cursor.getColumnIndexOrThrow("next");
             if (cursor.getType(nextQuestionColumn) != Cursor.FIELD_TYPE_NULL) {
-                try {
-                    Question next = retrieveQuestionById(cursor.getInt(nextQuestionColumn));
-                    result.setNext(next);
-                } catch (Exception ignored) {
-                }
+                int nextId = cursor.getInt(nextQuestionColumn);
+                Question next = retrieveQuestionById(nextId);
+                result.setNext(next);
+            }
+
+            int shouldEndColumn = cursor.getColumnIndexOrThrow("end");
+            if(cursor.getType(shouldEndColumn) != Cursor.FIELD_TYPE_NULL){
+                boolean end = (!(cursor.getInt(shouldEndColumn) == 0));
+                    result.setShouldEnd(end);
             }
 
         } catch (IllegalArgumentException e) {
@@ -399,9 +422,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
         Question next = null;
         try {
 
-            //noinspection ConstantConditions
-            if (next == null)
-                next = retrieveNextQuestion(answer.getAnsweredQuestion());
+            next = retrieveNextQuestion(answer.getAnsweredQuestion());
 
             if (answer.getClass() == MultipleChoiceAnswer.class) {
                 Iterator<Choice> itr = ((MultipleChoiceAnswer) answer).getChoices();

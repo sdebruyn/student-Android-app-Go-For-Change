@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,14 +60,14 @@ public class QuestionActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question);
 
-        if (ApplicationData.getDatabaseConnector() == null)
+        if (ApplicationData.getInstance().getDatabaseConnector() == null)
             handleSimpleError(new IllegalStateException());
 
-        if(ApplicationData.getRespondent().getId() == 0)
+        if(ApplicationData.getInstance().getRespondent().getId() == 0)
             handleSimpleError(new IllegalStateException());
 
         try{
-            loadQuestion(ApplicationData.getDatabaseConnector().getNextQuestionForRespondent(ApplicationData.getRespondent()));
+            loadQuestion(ApplicationData.getInstance().getDatabaseConnector().getNextQuestionForRespondent(ApplicationData.getInstance().getRespondent()));
         }catch(SQLiteDatabaseCorruptException e){
             handleSimpleError(e);
         }
@@ -123,11 +124,15 @@ public class QuestionActivity extends Activity {
 
         if(getCurrentQuestion().getClass() == OpenTextQuestion.class){
 
-            String answeredText = getOpenTextEdit().getText().toString();
+            String answeredText = "";
+            try{
+                answeredText = getOpenTextEdit().getText().toString();
+            }catch(NullPointerException ignored){}
+
             if(answeredText.isEmpty()){
                 errorMessage = getString(R.string.invalid_text);
             }else{
-                answer = new OpenTextAnswer(ApplicationData.getRespondent(), getCurrentQuestion(), answeredText);
+                answer = new OpenTextAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answeredText);
             }
 
         }else if(getCurrentQuestion().getClass() == OpenNumericQuestion.class){
@@ -140,7 +145,7 @@ public class QuestionActivity extends Activity {
             }else if(!numericQuestion.isValidNumber(answered) && !numericQuestion.isYear()){
                 errorMessage = getString(R.string.invalid_number, answered);
             }else{
-                answer = new OpenNumericAnswer(ApplicationData.getRespondent(), getCurrentQuestion(), answered);
+                answer = new OpenNumericAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answered);
             }
 
         }else if(getCurrentQuestion().getClass() == RangeQuestion.class){
@@ -150,7 +155,7 @@ public class QuestionActivity extends Activity {
             if(!rangeQuestion.isValidNumber(answered)){
                 errorMessage = getString(R.string.invalid_number, answered);
             }else{
-                answer = new RangeAnswer(ApplicationData.getRespondent(), getCurrentQuestion(), answered);
+                answer = new RangeAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answered);
             }
 
         }else if(getCurrentQuestion().getClass() == MultipleChoiceQuestion.class){
@@ -181,7 +186,7 @@ public class QuestionActivity extends Activity {
             if(!multipleChoiceQuestion.isValidChoiceList(answered)){
                 errorMessage = getString(R.string.invalid_choices, multipleChoiceQuestion.getMinChoices(), answered.size());
             }else{
-                answer = new MultipleChoiceAnswer(ApplicationData.getRespondent(), getCurrentQuestion(), answered);
+                answer = new MultipleChoiceAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answered);
             }
 
         }
@@ -196,9 +201,12 @@ public class QuestionActivity extends Activity {
         }else{
 
             Question next = null;
-            try {
-                next = ApplicationData.getDatabaseConnector().continueSurvey(answer);
-            } catch (SQLException ignored) {}
+
+            if(!getCurrentQuestion().isShouldEnd()){
+                try {
+                    next = ApplicationData.getInstance().getDatabaseConnector().continueSurvey(answer);
+                } catch (SQLException ignored) {}
+            }
 
             if(next == null){
                 Intent intent = new Intent(this, UserInfoActivity.class);
@@ -244,9 +252,9 @@ public class QuestionActivity extends Activity {
                 int currentYear = Calendar.getInstance().get(Calendar.YEAR);
                 numberPicker.setValue(currentYear);
             }else{
-                numberPicker.setMinValue(0);
-                numberPicker.setMaxValue(1000000);
-                numberPicker.setValue(0);
+                numberPicker.setMinValue(nQuestion.getMin());
+                numberPicker.setMaxValue(nQuestion.getMax());
+                numberPicker.setValue(nQuestion.getMin());
             }
 
             setOpenNumericPicker(numberPicker);
@@ -264,7 +272,7 @@ public class QuestionActivity extends Activity {
                     if(nQuestion.isYear())
                         dBuilder.setTitle(getString(R.string.enter_ranged_number, OpenNumericQuestion.MIN_YEAR, OpenNumericQuestion.MAX_YEAR));
                     else
-                        dBuilder.setTitle(getString(R.string.enter_ranged_number, 0, 100000));
+                        dBuilder.setTitle(getString(R.string.enter_ranged_number, nQuestion.getMin(), nQuestion.getMax()));
                     LinearLayout dialogContents = new LinearLayout(aContext);
                     dialogContents.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
                     final EditText rangedNumber = new EditText(aContext);
@@ -384,7 +392,7 @@ public class QuestionActivity extends Activity {
                     RadioButton radioButton = new RadioButton(this);
                     radioButton.setLayoutParams(itemParams);
                     radioButton.setText(choice.getText());
-                    radioButton.setTextSize(getResources().getDimension(R.dimen.choice_text_size));
+                    radioButton.setTextSize(getResources().getDimension(R.dimen.radio_text_size));
                     int id = View.generateViewId();
                     itemIdentifiers.put(id, choice);
                     radioButton.setId(id);
@@ -409,6 +417,9 @@ public class QuestionActivity extends Activity {
 
             }
         }
+
+        ScrollView sv = (ScrollView)findViewById(R.id.questionScrollView);
+        sv.smoothScrollTo(0,0);
     }
 
     public Question getCurrentQuestion() {

@@ -70,7 +70,7 @@ public class UserInfoActivity extends Activity {
         EditText editCompanyPostal = (EditText) findViewById(R.id.editCompanyPostal);
         EditText editRespondentMail = (EditText) findViewById(R.id.editRespondentMail);
 
-        Respondent respondent = ApplicationData.getRespondent();
+        Respondent respondent = ApplicationData.getInstance().getRespondent();
         respondent.setCompanyName(editCompanyName.getText().toString());
         respondent.setCompanyPerson(editRespondentName.getText().toString());
         respondent.setCompanyEmail(editRespondentMail.getText().toString());
@@ -80,7 +80,7 @@ public class UserInfoActivity extends Activity {
         }
 
         try {
-            ApplicationData.getDatabaseConnector().finishRespondent(respondent);
+            ApplicationData.getInstance().getDatabaseConnector().finishRespondent(respondent);
         } catch (SQLException e) {
             handleSimpleError(e);
         }

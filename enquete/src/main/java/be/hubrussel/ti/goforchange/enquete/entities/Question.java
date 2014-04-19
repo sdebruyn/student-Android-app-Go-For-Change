@@ -12,12 +12,14 @@ public abstract class Question implements BaseColumns {
     private Question next;
     private Section section;
     private String description;
+    private boolean shouldEnd;
 
     public Question(Section section, String description){
         setSection(section);
         setDescription(description);
         setOrder(0);
         setNext(null);
+        setShouldEnd(false);
     }
 
     public int getId() {
@@ -63,5 +65,13 @@ public abstract class Question implements BaseColumns {
 
     public void setNext(Question next) {
         this.next = next;
+    }
+
+    public boolean isShouldEnd() {
+        return shouldEnd;
+    }
+
+    public void setShouldEnd(boolean shouldEnd) {
+        this.shouldEnd = shouldEnd;
     }
 }

@@ -11,10 +11,14 @@ public class OpenNumericQuestion extends Question {
     private boolean isYear;
     public final static int MIN_YEAR = 1400;
     public final static int MAX_YEAR = 2200;
+    private int min;
+    private int max;
 
     public OpenNumericQuestion(Section section, String description){
         super(section, description);
         setYear(false);
+        setMin(0);
+        setMax(100000);
     }
 
     public boolean isYear() {
@@ -25,7 +29,28 @@ public class OpenNumericQuestion extends Question {
         this.isYear = isYear;
     }
 
-    public boolean isValidNumber(int number){
-        return !(isYear() && (number < MIN_YEAR || number > MAX_YEAR));
+    public boolean isValidNumber(int number) {
+        if (isYear() && number > MIN_YEAR || number < MAX_YEAR){
+            return true;
+        }else if(!isYear() && number >= getMin() && number <= getMax()) {
+            return true;
+        }
+        return false;
+    }
+
+    public int getMin() {
+        return min;
+    }
+
+    public int getMax() {
+        return max;
+    }
+
+    public void setMin(int min) {
+        this.min = min;
+    }
+
+    public void setMax(int max) {
+        this.max = max;
     }
 }
