@@ -15,6 +15,7 @@ public class MultipleChoiceQuestion extends Question {
 
     /**
      * By default minChoices and maxChoices will be 0.
+     *
      * @param section
      * @param description
      */
@@ -26,50 +27,50 @@ public class MultipleChoiceQuestion extends Question {
     }
 
     /**
-     * @post If maxChoices or minChoices was 0 before, then make it 1.
      * @param choice
+     * @post If maxChoices or minChoices was 0 before, then make it 1.
      */
-    public void addChoice(Choice choice){
+    public void addChoice(Choice choice) {
         choices.add(choice);
         choice.setQuestion(this);
 
-        if(getMaxChoices() == 0)
+        if (getMaxChoices() == 0)
             setMaxChoices(1);
 
-        if(getMinChoices() == 0)
+        if (getMinChoices() == 0)
             setMinChoices(1);
     }
 
     /**
-     * @post If the number of maximum choices is higher than the new number of available choices, make sure the number of max choices is set to the same number as the available choices.
      * @param choice
+     * @post If the number of maximum choices is higher than the new number of available choices, make sure the number of max choices is set to the same number as the available choices.
      */
-    public void removeChoice(Choice choice){
+    public void removeChoice(Choice choice) {
         choices.remove(choice);
         choice.setQuestion(null);
 
-        if(getMaxChoices() > choices.size())
+        if (getMaxChoices() > choices.size())
             setMaxChoices(choices.size());
 
-        if(getMinChoices() > choices.size())
+        if (getMinChoices() > choices.size())
             setMinChoices(choices.size());
     }
 
-    public Iterator<Choice> getChoices(){
+    public Iterator<Choice> getChoices() {
         return choices.iterator();
     }
 
-    public void removeChoiceById(int id){
+    public void removeChoiceById(int id) {
         Iterator<Choice> itr = getChoices();
         Choice toDelete = null;
-        do{
+        do {
             Choice c = itr.next();
-            if(c.getId() == id){
+            if (c.getId() == id) {
                 toDelete = c;
                 break;
             }
-        }while(itr.hasNext());
-        if(toDelete != null)
+        } while (itr.hasNext());
+        if (toDelete != null)
             choices.remove(toDelete);
     }
 
@@ -78,26 +79,25 @@ public class MultipleChoiceQuestion extends Question {
     }
 
     /**
-     *
      * @param maxChoices
      * @throws IllegalArgumentException The maximum number of choices must be equal to or lower than the number of available choices.
      */
     public void setMaxChoices(int maxChoices) throws IllegalArgumentException {
-        if(maxChoices > choices.size())
+        if (maxChoices > choices.size())
             throw new IllegalArgumentException();
 
         this.maxChoices = maxChoices;
     }
 
-    private boolean isValidChoice(Choice choice){
-        if(choice == null)
+    private boolean isValidChoice(Choice choice) {
+        if (choice == null)
             return false;
         return choice.getQuestion() == this && choices.contains(choice);
     }
 
-    public boolean isValidChoiceList(List<Choice> choices){
-        for(Choice choice: choices){
-            if(!isValidChoice(choice))
+    public boolean isValidChoiceList(List<Choice> choices) {
+        for (Choice choice : choices) {
+            if (!isValidChoice(choice))
                 return false;
         }
 
@@ -109,12 +109,11 @@ public class MultipleChoiceQuestion extends Question {
     }
 
     /**
-     *
      * @param minChoices
      * @throws IllegalArgumentException The minimum number of choices must be equal to or lower than the number of available choices.
      */
     public void setMinChoices(int minChoices) throws IllegalArgumentException {
-        if(minChoices > choices.size())
+        if (minChoices > choices.size())
             throw new IllegalArgumentException();
 
         this.minChoices = minChoices;

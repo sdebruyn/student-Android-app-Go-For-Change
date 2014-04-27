@@ -8,7 +8,6 @@ public class OpenTextAnswer extends Answer {
     private final String answeredText;
 
     /**
-     *
      * @param respondent
      * @param answeredQuestion
      * @param answeredText
@@ -17,7 +16,7 @@ public class OpenTextAnswer extends Answer {
     public OpenTextAnswer(Respondent respondent, Question answeredQuestion, String answeredText) throws ClassCastException {
         super(respondent, answeredQuestion);
 
-        if(answeredQuestion.getClass() != OpenTextQuestion.class)
+        if (answeredQuestion.getClass() != OpenTextQuestion.class)
             throw new ClassCastException();
 
         this.answeredText = answeredText;

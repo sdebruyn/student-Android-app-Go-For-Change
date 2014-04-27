@@ -14,7 +14,7 @@ public abstract class Question implements BaseColumns {
     private String description;
     private boolean shouldEnd;
 
-    public Question(Section section, String description){
+    public Question(Section section, String description) {
         setSection(section);
         setDescription(description);
         setOrder(0);

@@ -9,7 +9,7 @@ public class Section implements BaseColumns {
 
     private String name;
 
-    public Section(String name){
+    public Section(String name) {
         this.setName(name);
     }
 

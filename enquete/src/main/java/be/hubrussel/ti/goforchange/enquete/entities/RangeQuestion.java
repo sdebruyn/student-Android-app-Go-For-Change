@@ -10,9 +10,9 @@ public class RangeQuestion extends Question {
     private int step;
 
     /**
-     * @post Minimum is 1, maximum is 7, step is 1. These are the default settings.
      * @param section
      * @param description
+     * @post Minimum is 1, maximum is 7, step is 1. These are the default settings.
      */
     public RangeQuestion(Section section, String description) {
         super(section, description);
@@ -42,23 +42,31 @@ public class RangeQuestion extends Question {
     }
 
     /**
-     *
      * @param step The step for this range. This step should be valid for the set max and min. That means that ((max - min) % step) should be zero.
      */
     public void setStep(int step) {
-        if(((getMax() - getMin()) % step) == 0)
+        if (((getMax() - getMin()) % step) == 0)
             this.step = step;
     }
 
-    public boolean isValidNumber(int number){
+    public boolean isValidNumber(int number) {
         return !(number < getMin() || number > getMax() || ((number + getMin()) % getStep() != 0));
     }
 
-    public int getSeekBarMax(){
+    public int getSeekBarMax() {
         return (getMax() - getMin()) / getStep();
     }
 
-    public int getRealValueFromSeekBar(int fromSeekBar){
-        return  getMin() + fromSeekBar * getStep();
+    public int getRealValueFromSeekBar(int fromSeekBar) {
+        return getMin() + fromSeekBar * getStep();
+    }
+
+    public int getSeekBarStart() {
+        int max = getSeekBarMax();
+        int min = 0;
+        double half = ((max - min) / 2) + min;
+        long rounded = Math.round(half);
+        return (int) rounded;
+
     }
 }

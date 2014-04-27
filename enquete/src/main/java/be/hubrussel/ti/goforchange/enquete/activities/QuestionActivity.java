@@ -63,12 +63,12 @@ public class QuestionActivity extends Activity {
         if (ApplicationData.getInstance().getDatabaseConnector() == null)
             handleSimpleError(new IllegalStateException());
 
-        if(ApplicationData.getInstance().getRespondent().getId() == 0)
+        if (ApplicationData.getInstance().getRespondent().getId() == 0)
             handleSimpleError(new IllegalStateException());
 
-        try{
+        try {
             loadQuestion(ApplicationData.getInstance().getDatabaseConnector().getNextQuestionForRespondent(ApplicationData.getInstance().getRespondent()));
-        }catch(SQLiteDatabaseCorruptException e){
+        } catch (SQLiteDatabaseCorruptException e) {
             handleSimpleError(e);
         }
     }
@@ -122,60 +122,61 @@ public class QuestionActivity extends Activity {
         Answer answer = null;
         String errorMessage = getString(R.string.invalid_answer);
 
-        if(getCurrentQuestion().getClass() == OpenTextQuestion.class){
+        if (getCurrentQuestion().getClass() == OpenTextQuestion.class) {
 
             String answeredText = "";
-            try{
+            try {
                 answeredText = getOpenTextEdit().getText().toString();
-            }catch(NullPointerException ignored){}
+            } catch (NullPointerException ignored) {
+            }
 
-            if(answeredText.isEmpty()){
+            if (answeredText.isEmpty()) {
                 errorMessage = getString(R.string.invalid_text);
-            }else{
+            } else {
                 answer = new OpenTextAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answeredText);
             }
 
-        }else if(getCurrentQuestion().getClass() == OpenNumericQuestion.class){
+        } else if (getCurrentQuestion().getClass() == OpenNumericQuestion.class) {
 
-            OpenNumericQuestion numericQuestion = (OpenNumericQuestion)getCurrentQuestion();
+            OpenNumericQuestion numericQuestion = (OpenNumericQuestion) getCurrentQuestion();
             int answered = getOpenNumericPicker().getValue();
 
-            if(!numericQuestion.isValidNumber(answered) && numericQuestion.isYear()) {
+            if (!numericQuestion.isValidNumber(answered) && numericQuestion.isYear()) {
                 errorMessage = getString(R.string.invalid_year, answered);
-            }else if(!numericQuestion.isValidNumber(answered) && !numericQuestion.isYear()){
+            } else if (!numericQuestion.isValidNumber(answered) && !numericQuestion.isYear()) {
                 errorMessage = getString(R.string.invalid_number, answered);
-            }else{
+            } else {
                 answer = new OpenNumericAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answered);
             }
 
-        }else if(getCurrentQuestion().getClass() == RangeQuestion.class){
+        } else if (getCurrentQuestion().getClass() == RangeQuestion.class) {
 
-            RangeQuestion rangeQuestion = (RangeQuestion)getCurrentQuestion();
+            RangeQuestion rangeQuestion = (RangeQuestion) getCurrentQuestion();
             int answered = rangeQuestion.getRealValueFromSeekBar(getRangeSeekBar().getProgress());
-            if(!rangeQuestion.isValidNumber(answered)){
+            if (!rangeQuestion.isValidNumber(answered)) {
                 errorMessage = getString(R.string.invalid_number, answered);
-            }else{
+            } else {
                 answer = new RangeAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answered);
             }
 
-        }else if(getCurrentQuestion().getClass() == MultipleChoiceQuestion.class){
+        } else if (getCurrentQuestion().getClass() == MultipleChoiceQuestion.class) {
 
-            MultipleChoiceQuestion multipleChoiceQuestion = (MultipleChoiceQuestion)getCurrentQuestion();
+            MultipleChoiceQuestion multipleChoiceQuestion = (MultipleChoiceQuestion) getCurrentQuestion();
             ArrayList<Choice> answered = new ArrayList<Choice>();
 
-            if(multipleChoiceQuestion.getMaxChoices() == 1){
+            if (multipleChoiceQuestion.getMaxChoices() == 1) {
 
                 int checkButton = getChoiceRadioGroup().getCheckedRadioButtonId();
-                if(checkButton != -1){
+                if (checkButton != -1) {
                     Choice choice = itemIdentifiers.get(checkButton);
                     answered.add(choice);
                 }
 
-            }else{
+            } else {
 
-                for(int id: itemIdentifiers.keySet()){
-                    CheckBox checkBox = (CheckBox)findViewById(id);
-                    if(checkBox.isChecked()){
+                for (int id : itemIdentifiers.keySet()) {
+                    CheckBox checkBox = (CheckBox) findViewById(id);
+                    if (checkBox.isChecked()) {
                         Choice choice = itemIdentifiers.get(id);
                         answered.add(choice);
                     }
@@ -183,36 +184,37 @@ public class QuestionActivity extends Activity {
 
             }
 
-            if(!multipleChoiceQuestion.isValidChoiceList(answered)){
+            if (!multipleChoiceQuestion.isValidChoiceList(answered)) {
                 errorMessage = getString(R.string.invalid_choices, multipleChoiceQuestion.getMinChoices(), answered.size());
-            }else{
+            } else {
                 answer = new MultipleChoiceAnswer(ApplicationData.getInstance().getRespondent(), getCurrentQuestion(), answered);
             }
 
         }
 
-        if(answer == null){
+        if (answer == null) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.invalid_answer).setMessage(errorMessage);
             AlertDialog dialog = builder.create();
             dialog.show();
 
-        }else{
+        } else {
 
             Question next = null;
 
-            if(!getCurrentQuestion().isShouldEnd()){
+            if (!getCurrentQuestion().isShouldEnd()) {
                 try {
                     next = ApplicationData.getInstance().getDatabaseConnector().continueSurvey(answer);
-                } catch (SQLException ignored) {}
+                } catch (SQLException ignored) {
+                }
             }
 
-            if(next == null){
+            if (next == null) {
                 Intent intent = new Intent(this, UserInfoActivity.class);
                 startActivity(intent);
                 finish();
-            }else{
+            } else {
                 loadQuestion(next);
             }
 
@@ -220,38 +222,38 @@ public class QuestionActivity extends Activity {
 
     }
 
-    private void loadQuestion(Question question){
+    private void loadQuestion(Question question) {
         resetInsertedQuestion();
         setCurrentQuestion(question);
 
-        TextView sectionDescView = (TextView)findViewById(R.id.sectionDescription);
+        TextView sectionDescView = (TextView) findViewById(R.id.sectionDescription);
         sectionDescView.setText(question.getSection().getName());
-        TextView questionDescView = (TextView)findViewById(R.id.questionDescription);
+        TextView questionDescView = (TextView) findViewById(R.id.questionDescription);
         questionDescView.setText(question.getDescription());
-        LinearLayout questionLayout = (LinearLayout)findViewById(R.id.questionLayout);
+        LinearLayout questionLayout = (LinearLayout) findViewById(R.id.questionLayout);
         questionLayout.removeAllViews();
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
-        if(question.getClass() == OpenTextQuestion.class){
+        if (question.getClass() == OpenTextQuestion.class) {
             EditText editText = new EditText(this);
             editText.setId(View.generateViewId());
             editText.setLayoutParams(params);
             setOpenTextEdit(editText);
             questionLayout.addView(editText);
 
-        }else if(question.getClass() == OpenNumericQuestion.class) {
-            final OpenNumericQuestion nQuestion = (OpenNumericQuestion)question;
+        } else if (question.getClass() == OpenNumericQuestion.class) {
+            final OpenNumericQuestion nQuestion = (OpenNumericQuestion) question;
 
             final NumberPicker numberPicker = new NumberPicker(this);
             numberPicker.setId(View.generateViewId());
             numberPicker.setLayoutParams(params);
 
-            if(((OpenNumericQuestion)question).isYear()){
+            if (((OpenNumericQuestion) question).isYear()) {
                 numberPicker.setMinValue(OpenNumericQuestion.MIN_YEAR);
                 numberPicker.setMaxValue(OpenNumericQuestion.MAX_YEAR);
                 int currentYear = Calendar.getInstance().get(Calendar.YEAR);
                 numberPicker.setValue(currentYear);
-            }else{
+            } else {
                 numberPicker.setMinValue(nQuestion.getMin());
                 numberPicker.setMaxValue(nQuestion.getMax());
                 numberPicker.setValue(nQuestion.getMin());
@@ -269,7 +271,7 @@ public class QuestionActivity extends Activity {
                 @Override
                 public void onClick(View view) {
                     AlertDialog.Builder dBuilder = new AlertDialog.Builder(aContext);
-                    if(nQuestion.isYear())
+                    if (nQuestion.isYear())
                         dBuilder.setTitle(getString(R.string.enter_ranged_number, OpenNumericQuestion.MIN_YEAR, OpenNumericQuestion.MAX_YEAR));
                     else
                         dBuilder.setTitle(getString(R.string.enter_ranged_number, nQuestion.getMin(), nQuestion.getMax()));
@@ -278,7 +280,7 @@ public class QuestionActivity extends Activity {
                     final EditText rangedNumber = new EditText(aContext);
                     rangedNumber.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                     rangedNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    if(nQuestion.isYear())
+                    if (nQuestion.isYear())
                         rangedNumber.setText(String.valueOf(OpenNumericQuestion.MIN_YEAR));
                     else
                         rangedNumber.setText(String.valueOf(0));
@@ -288,15 +290,15 @@ public class QuestionActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             int entered = 0;
-                            if(rangedNumber.getText().length() > 0)
+                            if (rangedNumber.getText().length() > 0)
                                 entered = Integer.valueOf(rangedNumber.getText().toString());
-                            if(entered < 0)
+                            if (entered < 0)
                                 entered = 0;
-                            if(entered > 100000)
+                            if (entered > 100000)
                                 entered = 100000;
-                            if(nQuestion.isYear() && entered < OpenNumericQuestion.MIN_YEAR)
+                            if (nQuestion.isYear() && entered < OpenNumericQuestion.MIN_YEAR)
                                 entered = OpenNumericQuestion.MIN_YEAR;
-                            if(nQuestion.isYear() && entered > OpenNumericQuestion.MAX_YEAR)
+                            if (nQuestion.isYear() && entered > OpenNumericQuestion.MAX_YEAR)
                                 entered = OpenNumericQuestion.MAX_YEAR;
                             numberPicker.setValue(entered);
                         }
@@ -314,8 +316,8 @@ public class QuestionActivity extends Activity {
 
             questionLayout.addView(jumpToNumberOpenener);
 
-        }else if(question.getClass() == RangeQuestion.class){
-            final RangeQuestion rangeQuestion = (RangeQuestion)question;
+        } else if (question.getClass() == RangeQuestion.class) {
+            final RangeQuestion rangeQuestion = (RangeQuestion) question;
 
             LinearLayout.LayoutParams tvParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
@@ -347,7 +349,7 @@ public class QuestionActivity extends Activity {
                 }
 
                 @Override
-                public void onProgressChanged(SeekBar seekBar1, int progress, boolean fromUser){
+                public void onProgressChanged(SeekBar seekBar1, int progress, boolean fromUser) {
                     int realValue = rangeQuestion.getRealValueFromSeekBar(progress);
                     currentRangeView.setText(String.valueOf(realValue));
                 }
@@ -355,7 +357,7 @@ public class QuestionActivity extends Activity {
             });
 
             seekBar.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-            seekBar.setProgress(0);
+            seekBar.setProgress(rangeQuestion.getSeekBarStart());
             setRangeSeekBar(seekBar);
 
             LinearLayout rangePicker = new LinearLayout(this);
@@ -375,19 +377,19 @@ public class QuestionActivity extends Activity {
             questionLayout.addView(rangePicker);
             questionLayout.addView(container);
 
-        }else if(question.getClass() == MultipleChoiceQuestion.class){
-            MultipleChoiceQuestion multipleChoiceQuestion = (MultipleChoiceQuestion)question;
+        } else if (question.getClass() == MultipleChoiceQuestion.class) {
+            MultipleChoiceQuestion multipleChoiceQuestion = (MultipleChoiceQuestion) question;
 
             LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
-            if(multipleChoiceQuestion.getMaxChoices() == 1){
+            if (multipleChoiceQuestion.getMaxChoices() == 1) {
 
                 RadioGroup radioGroup = new RadioGroup(this);
                 setChoiceRadioGroup(radioGroup);
                 radioGroup.setLayoutParams(params);
 
                 Iterator<Choice> itr = multipleChoiceQuestion.getChoices();
-                while(itr.hasNext()){
+                while (itr.hasNext()) {
                     Choice choice = itr.next();
                     RadioButton radioButton = new RadioButton(this);
                     radioButton.setLayoutParams(itemParams);
@@ -401,10 +403,10 @@ public class QuestionActivity extends Activity {
 
                 questionLayout.addView(radioGroup);
 
-            }else{
+            } else {
 
                 Iterator<Choice> itr = multipleChoiceQuestion.getChoices();
-                while(itr.hasNext()){
+                while (itr.hasNext()) {
                     Choice choice = itr.next();
                     CheckBox checkBox = new CheckBox(this);
                     checkBox.setLayoutParams(itemParams);
@@ -418,8 +420,8 @@ public class QuestionActivity extends Activity {
             }
         }
 
-        ScrollView sv = (ScrollView)findViewById(R.id.questionScrollView);
-        sv.smoothScrollTo(0,0);
+        ScrollView sv = (ScrollView) findViewById(R.id.questionScrollView);
+        sv.smoothScrollTo(0, 0);
     }
 
     public Question getCurrentQuestion() {

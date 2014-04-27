@@ -8,10 +8,10 @@ import android.provider.BaseColumns;
 public abstract class Answer implements BaseColumns {
 
     private final Respondent respondent;
-    private int id;
     private final Question answeredQuestion;
+    private int id;
 
-    public Answer(Respondent respondent, Question answeredQuestion){
+    public Answer(Respondent respondent, Question answeredQuestion) {
         this.answeredQuestion = answeredQuestion;
 
         this.respondent = respondent;

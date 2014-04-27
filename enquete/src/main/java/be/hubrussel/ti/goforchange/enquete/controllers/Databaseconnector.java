@@ -7,23 +7,33 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.Settings;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
-import be.hubrussel.ti.goforchange.enquete.entities.*;
+import be.hubrussel.ti.goforchange.enquete.entities.Answer;
+import be.hubrussel.ti.goforchange.enquete.entities.Choice;
+import be.hubrussel.ti.goforchange.enquete.entities.MultipleChoiceAnswer;
+import be.hubrussel.ti.goforchange.enquete.entities.MultipleChoiceQuestion;
+import be.hubrussel.ti.goforchange.enquete.entities.OpenNumericAnswer;
+import be.hubrussel.ti.goforchange.enquete.entities.OpenNumericQuestion;
+import be.hubrussel.ti.goforchange.enquete.entities.OpenTextAnswer;
+import be.hubrussel.ti.goforchange.enquete.entities.OpenTextQuestion;
+import be.hubrussel.ti.goforchange.enquete.entities.Question;
+import be.hubrussel.ti.goforchange.enquete.entities.QuestionType;
+import be.hubrussel.ti.goforchange.enquete.entities.RangeAnswer;
+import be.hubrussel.ti.goforchange.enquete.entities.RangeQuestion;
+import be.hubrussel.ti.goforchange.enquete.entities.Respondent;
+import be.hubrussel.ti.goforchange.enquete.entities.Section;
 
 /**
  * Created by Samuel on 31/03/2014.
@@ -38,7 +48,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
      * Attention! This will erase all data in the database.
      * The same could happen when the user downgrades instead of upgrading.
      */
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
     private final static String VIEW_QUESTIONS = "single_questions";
     private final static String TABLE_ANSWERS = "answers";
     private final static String TABLE_CHOICES = "choices";
@@ -229,10 +239,10 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                     int nMinColInd = nrMeta.getColumnIndexOrThrow("min");
                     int nMaxColInd = nrMeta.getColumnIndexOrThrow("max");
 
-                    if(nrMeta.getType(nMinColInd) != Cursor.FIELD_TYPE_NULL)
+                    if (nrMeta.getType(nMinColInd) != Cursor.FIELD_TYPE_NULL)
                         nQuestion.setMin(nrMeta.getInt(nMinColInd));
 
-                    if(nrMeta.getType(nMaxColInd) != Cursor.FIELD_TYPE_NULL)
+                    if (nrMeta.getType(nMaxColInd) != Cursor.FIELD_TYPE_NULL)
                         nQuestion.setMax(nrMeta.getInt(nMaxColInd));
 
                     nrMeta.close();
@@ -316,9 +326,9 @@ public class DatabaseConnector extends SQLiteOpenHelper {
             }
 
             int shouldEndColumn = cursor.getColumnIndexOrThrow("end");
-            if(cursor.getType(shouldEndColumn) != Cursor.FIELD_TYPE_NULL){
+            if (cursor.getType(shouldEndColumn) != Cursor.FIELD_TYPE_NULL) {
                 boolean end = (!(cursor.getInt(shouldEndColumn) == 0));
-                    result.setShouldEnd(end);
+                result.setShouldEnd(end);
             }
 
         } catch (IllegalArgumentException e) {
@@ -578,7 +588,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
                 Cursor questionsCursor = db.query(VIEW_QUESTIONS, new String[]{"[_id]", "[order]", "[type]"}, null, null, null, null, null);
                 questionsCursor.moveToFirst();
-                do{
+                do {
                     String qID = String.valueOf(questionsCursor.getInt(questionsCursor.getColumnIndexOrThrow("[_id]")));
                     String qOrder = String.valueOf(questionsCursor.getInt(questionsCursor.getColumnIndexOrThrow("[order]")));
                     String answered = "-1";
@@ -586,12 +596,12 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                     int noAnswers = answersCursor.getCount();
 
                     QuestionType type = QuestionType.fromString(questionsCursor.getString(questionsCursor.getColumnIndexOrThrow("[type]")));
-                    switch(type){
+                    switch (type) {
 
                         case RANGE:
                         case NUMERIC:
                         case YEAR:
-                            if(answersCursor.moveToFirst()){
+                            if (answersCursor.moveToFirst()) {
                                 answered = String.valueOf(answersCursor.getInt(answersCursor.getColumnIndexOrThrow("numeric")));
                             }
                             ArrayList<String> currentLine = new ArrayList<String>();
@@ -607,7 +617,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                             resultLines.add(currentLine);
                             break;
                         case TEXT:
-                            if(answersCursor.moveToFirst()){
+                            if (answersCursor.moveToFirst()) {
                                 answered = "\"" + answersCursor.getString(answersCursor.getColumnIndexOrThrow("open_text")) + "\"";
                             }
                             ArrayList<String> currentLine1 = new ArrayList<String>();
@@ -627,21 +637,21 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
                             Cursor choicesCursor = db.query(TABLE_CHOICES, new String[]{"_id"}, "[question_id] = ?", new String[]{qID}, null, null, null);
                             choicesCursor.moveToFirst();
-                            do{
+                            do {
                                 choicesMapping.put(choicesCursor.getInt(choicesCursor.getColumnIndexOrThrow("_id")), -1);
-                            }while(choicesCursor.moveToNext());
+                            } while (choicesCursor.moveToNext());
 
-                            if(noAnswers > 0){
-                                for(Integer key: choicesMapping.keySet())
+                            if (noAnswers > 0) {
+                                for (Integer key : choicesMapping.keySet())
                                     choicesMapping.put(key, 0);
 
                                 answersCursor.moveToFirst();
-                                do{
+                                do {
                                     choicesMapping.put(answersCursor.getInt(answersCursor.getColumnIndexOrThrow("choice_id")), 1);
-                                }while(answersCursor.moveToNext());
+                                } while (answersCursor.moveToNext());
                             }
                             int counter = 0;
-                            for(Integer choiceID: choicesMapping.keySet()){
+                            for (Integer choiceID : choicesMapping.keySet()) {
                                 char[] qExtraChars = Character.toChars(65 + counter);
                                 String qExtra = new String(qExtraChars);
                                 String qFinalID = qOrder + qExtra;
@@ -663,9 +673,10 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
                             break;
                     }
-                }while(questionsCursor.moveToNext());
+                } while (questionsCursor.moveToNext());
             } while (respCursor.moveToNext());
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         respCursor.close();
         db.close();

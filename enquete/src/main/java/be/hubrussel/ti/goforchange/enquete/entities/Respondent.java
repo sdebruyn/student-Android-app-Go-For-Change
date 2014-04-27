@@ -10,40 +10,40 @@ import java.util.Iterator;
  */
 public class Respondent implements BaseColumns {
 
+    private final ArrayList<Answer> answers;
     private int id;
     private String companyName;
     private int companyPostal;
     private String companyPerson;
     private String companyEmail;
-    private final ArrayList<Answer> answers;
 
-    public Respondent(){
+    public Respondent() {
         answers = new ArrayList<Answer>();
     }
 
-    public Iterator<Answer> getAnswers(){
+    public Iterator<Answer> getAnswers() {
         return answers.iterator();
     }
 
-    protected void addAnswer(Answer answer){
+    protected void addAnswer(Answer answer) {
         answers.add(answer);
     }
 
-    protected void removeAnswer(Answer answer){
+    protected void removeAnswer(Answer answer) {
         answers.remove(answer);
     }
 
-    protected void removeAnswerById(int id){
+    protected void removeAnswerById(int id) {
         Iterator<Answer> itr = getAnswers();
         Answer toDelete = null;
-        do{
+        do {
             Answer a = itr.next();
-            if(a.getId() == id){
+            if (a.getId() == id) {
                 toDelete = a;
                 break;
             }
-        }while(itr.hasNext());
-        if(toDelete != null)
+        } while (itr.hasNext());
+        if (toDelete != null)
             answers.remove(toDelete);
     }
 

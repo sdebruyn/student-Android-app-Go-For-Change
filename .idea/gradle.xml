@@ -7,12 +7,13 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="C:\Users\Samuel\Documents\workspaces\AndroidStudio\goforchange" />
-            <option value="C:\Users\Samuel\Documents\workspaces\AndroidStudio\goforchange\enquete" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/enquete" />
           </set>
         </option>
       </GradleProjectSettings>
     </option>
+    <option name="offlineWork" value="true" />
   </component>
 </project>
 

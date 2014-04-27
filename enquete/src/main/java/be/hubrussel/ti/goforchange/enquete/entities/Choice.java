@@ -13,7 +13,7 @@ public class Choice implements BaseColumns {
     private Question nextQuestion;
     private boolean shouldEnd;
 
-    public Choice(String text){
+    public Choice(String text) {
         setText(text);
         setNextQuestion(null);
         setShouldEnd(false);
@@ -24,12 +24,11 @@ public class Choice implements BaseColumns {
     }
 
     /**
-     *
      * @param question
      * @throws UnsupportedOperationException You can only set this to a question of the previous setting was null.
      */
     protected void setQuestion(MultipleChoiceQuestion question) throws UnsupportedOperationException {
-        if(this.question != null)
+        if (this.question != null)
             throw new UnsupportedOperationException();
 
         this.question = question;

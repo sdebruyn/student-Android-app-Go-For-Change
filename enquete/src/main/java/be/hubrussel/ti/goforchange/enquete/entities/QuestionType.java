@@ -9,14 +9,15 @@ public enum QuestionType {
 
     /**
      * This returns the type of a question based on a string. It defaults to TEXT when it doesn't recognize the type.
+     *
      * @param input The string to convert.
      * @return A QuestionType based on the string.
      */
-    public static QuestionType fromString(String input){
+    public static QuestionType fromString(String input) {
 
-        try{
+        try {
             return valueOf(input.trim().replace(" ", "_").toUpperCase());
-        }catch(Exception e){
+        } catch (Exception e) {
             return TEXT;
         }
 
