@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import be.hubrussel.ti.goforchange.enquete.entities.Answer;
 import be.hubrussel.ti.goforchange.enquete.entities.Choice;
@@ -633,7 +634,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
                             resultLines.add(currentLine1);
                             break;
                         case MULTIPLE_CHOICE:
-                            HashMap<Integer, Integer> choicesMapping = new HashMap<Integer, Integer>();
+                            TreeMap<Integer, Integer> choicesMapping = new TreeMap<Integer, Integer>();
 
                             Cursor choicesCursor = db.query(TABLE_CHOICES, new String[]{"_id"}, "[question_id] = ?", new String[]{qID}, null, null, null);
                             choicesCursor.moveToFirst();
